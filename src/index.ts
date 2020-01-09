@@ -1,15 +1,23 @@
-type PromiseCallback<T> = ((value: any) => (PromiseLike<T> | T)) | undefined | null
+type PromiseCallback<T> = ((value: any) => PromiseLike<T> | T) | undefined | null;
 
 export class Chain implements Promise<any> {
-  constructor(private resolution: any = null, private reason: any = null) {}
+  constructor(private resolution: any = null, private reason: any = null) {
+  }
 
   public finally(onfinally?: (() => void) | undefined | null): this {
-    if (onfinally instanceof Function) { onfinally(); }
+    if (onfinally instanceof Function) {
+      onfinally();
+    }
     return this;
   }
 
-  public then<TResult = any, TReason = never>(onfulfilled?: PromiseCallback<TResult>, onrejected?: PromiseCallback<TReason>): this {
-    if (this.rejected && onrejected instanceof Function) { return this.catch(onrejected) }
+  public then<TResult = any, TReason = never>(
+    onfulfilled?: PromiseCallback<TResult>,
+    onrejected?: PromiseCallback<TReason>,
+  ): this {
+    if (this.rejected && onrejected instanceof Function) {
+      return this.catch(onrejected);
+    }
 
     try {
       if (onfulfilled instanceof Function) {
@@ -23,8 +31,28 @@ export class Chain implements Promise<any> {
     return this;
   }
 
+  public with(onfulfilled?: (value: any) => void | undefined | null, onrejected?: (value: any) => void | undefined | null): this {
+    if (this.rejected && onrejected instanceof Function) {
+      onrejected(this.reason);
+      return this;
+    }
+
+    try {
+      if (onfulfilled instanceof Function) {
+        onfulfilled(this.resolution);
+      }
+    }
+      // tslint:disable-next-line:no-empty
+    finally {
+    }
+
+    return this;
+  }
+
   public catch<TReason = never>(onrejected?: PromiseCallback<TReason>): this {
-    if (this.fulfilled) { return this; }
+    if (this.fulfilled) {
+      return this;
+    }
 
     onrejected = onrejected instanceof Function ? onrejected : x => x;
 
@@ -53,7 +81,7 @@ export class Chain implements Promise<any> {
    */
   public eject(): any {
     if (this.rejected) {
-      throw (this.reason instanceof Error) ? this.reason : new Error(this.reason.toString());
+      throw this.reason instanceof Error ? this.reason : new Error(this.reason.toString());
     }
 
     return this.resolution;

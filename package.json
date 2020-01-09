@@ -1,6 +1,7 @@
 {
   "name": "@eyalsh/chain",
-  "version": "1.0.0",
+  "description": "A promise-like object that enables chaining methods without memory allocation overheads.",
+  "version": "1.0.2",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -9,11 +10,12 @@
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json"
   },
-  "keywords": [],
+  "keywords": ["chain", "promise"],
   "author": "Eyal Shalev <eyalsh@gmail.com>",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^24.0.25",
+    "@types/node": "^13.1.6",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
     "ts-jest": "^24.3.0",
@@ -21,9 +23,7 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.4"
   },
-  "dependencies": {
-    "@types/node": "^13.1.6"
-  },
+  "files": ["lib/**/*"],
   "directories": {
     "lib": "lib"
   },
@@ -34,6 +34,5 @@
   "bugs": {
     "url": "https://github.com/Eyal-Shalev/npm-chain/issues"
   },
-  "homepage": "https://github.com/Eyal-Shalev/npm-chain#readme",
-  "description": ""
+  "homepage": "https://github.com/Eyal-Shalev/npm-chain#readme"
 }
