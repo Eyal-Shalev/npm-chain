@@ -1,7 +1,7 @@
 {
   "name": "@eyalsh/chain",
   "description": "A promise-like object that enables chaining methods without memory allocation overheads.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
