@@ -1,0 +1,8 @@
+# OS & IDE
+.idea
+
+# Dependencies
+node_modules
+
+# Build
+/lib
