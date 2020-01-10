@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "watch": "tsc --watch",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",

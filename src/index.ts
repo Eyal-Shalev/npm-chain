@@ -1,7 +1,9 @@
+import RejectionError from './RejectionError';
+
 type PromiseCallback<T> = ((value: any) => PromiseLike<T> | T) | undefined | null;
 
 export class Chain implements Promise<any> {
-  constructor(private resolution: any = null, private reason: any = null) {
+  constructor(private current: any = null, private reason: any = null) {
   }
 
   public finally(onfinally?: (() => void) | undefined | null): this {
@@ -15,17 +17,22 @@ export class Chain implements Promise<any> {
     onfulfilled?: PromiseCallback<TResult>,
     onrejected?: PromiseCallback<TReason>,
   ): this {
-    if (this.rejected && onrejected instanceof Function) {
-      return this.catch(onrejected);
+    if (this.rejected && !(onrejected instanceof Function)) {
+      return this;
     }
 
+    const [fn, arg] = this.rejected ? [onrejected, this.reason] : [onfulfilled, this.current];
+
     try {
-      if (onfulfilled instanceof Function) {
-        this.resolution = onfulfilled(this.resolution);
+      if (fn instanceof Function) {
+        this.current = fn(arg);
+        if (this.current instanceof Chain) {
+          this.current = this.current.eject()
+        }
       }
     } catch (e) {
       this.reason = e;
-      this.resolution = null;
+      this.current = null;
     }
 
     return this;
@@ -39,11 +46,11 @@ export class Chain implements Promise<any> {
 
     try {
       if (onfulfilled instanceof Function) {
-        onfulfilled(this.resolution);
+        onfulfilled(this.current);
       }
     }
-      // tslint:disable-next-line:no-empty
     finally {
+      // Do nothing.
     }
 
     return this;
@@ -54,11 +61,9 @@ export class Chain implements Promise<any> {
       return this;
     }
 
-    onrejected = onrejected instanceof Function ? onrejected : x => x;
-
-    this.resolution = onrejected(this.reason);
+    this.current = this.reason;
     this.reason = null;
-    return this;
+    return this.then(onrejected)
   }
 
   get [Symbol.toStringTag]() {
@@ -81,10 +86,10 @@ export class Chain implements Promise<any> {
    */
   public eject(): any {
     if (this.rejected) {
-      throw this.reason instanceof Error ? this.reason : new Error(this.reason.toString());
+      throw this.reason instanceof Error ? this.reason : new RejectionError(this.reason.toString());
     }
 
-    return this.resolution;
+    return this.current;
   }
 }
 
