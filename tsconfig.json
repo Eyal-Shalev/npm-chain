@@ -5,8 +5,7 @@
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
-    "lib": ["esnext"],
-    "sourceMap": true
+    "lib": ["esnext"]
   },
   "include": [
     "src"

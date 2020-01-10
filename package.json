@@ -4,8 +4,10 @@
   "version": "1.0.4",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "clean": "rm -f lib/*",
+    "build": "npm run clean && tsc",
+    "prepublish": "npm run build",
+    "watch": "tsc --watch --sourceMap",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
