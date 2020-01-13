@@ -1,4 +1,4 @@
-# Chain
+# Chain [![npm version](https://badge.fury.io/js/%40eyalsh%2Fchain.svg)](https://badge.fury.io/js/%40eyalsh%2Fchain)
 Provides a _promise-like_ object that allows method chaining without memory or computation overhead.
 
 ## Example
