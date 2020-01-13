@@ -1,11 +1,10 @@
 {
   "name": "@eyalsh/chain",
   "description": "A promise-like object that enables chaining methods without memory allocation overheads.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -f lib/*",
-    "build": "npm run clean && tsc",
+    "build": "tsc",
     "prepublish": "npm run build",
     "watch": "tsc --watch --sourceMap",
     "test": "jest",
@@ -13,7 +12,10 @@
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json"
   },
-  "keywords": ["chain", "promise"],
+  "keywords": [
+    "chain",
+    "promise"
+  ],
   "author": "Eyal Shalev <eyalsh@gmail.com>",
   "license": "ISC",
   "devDependencies": {
@@ -26,7 +28,9 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.4"
   },
-  "files": ["lib/**/*"],
+  "files": [
+    "lib/**/*"
+  ],
   "directories": {
     "lib": "lib"
   },

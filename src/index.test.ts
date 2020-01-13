@@ -1,4 +1,4 @@
-import chain from './index';
+import chain, { reject } from './index';
 
 test('fulfilled', () => {
   chain('foo')
@@ -10,7 +10,7 @@ test('fulfilled', () => {
 });
 
 test('rejected', () => {
-  chain(null, 'bar')
+  reject('bar')
     .then(() => fail())
     .catch(name => `Goodbye ${name}`)
     .then(e => expect(e).toEqual('Goodbye bar'))

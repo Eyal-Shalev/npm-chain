@@ -3,12 +3,18 @@
     "target": "es5",
     "module": "commonjs",
     "declaration": true,
+    "rootDir": "src",
     "outDir": "./lib",
     "strict": true,
-    "lib": ["esnext"]
+    "lib": [
+      "esnext"
+    ]
   },
   "include": [
     "src"
   ],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": [
+    "node_modules",
+    "src/*.test.ts"
+  ]
 }

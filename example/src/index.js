@@ -1,16 +1,17 @@
-import _ from 'lodash';
-
 import chain from '@eyalsh/chain/lib/index';
 
-function component() {
-  return chain('webpack')
-    .then(x => ['Hello', x])
-    .then(x => _.join(x, ' '))
-    .then(x => (
-      chain(document.createElement('div'))
-        .with(el => el.innerHTML = x)
-    ))
-    .eject();
-}
+const sleep = (timeout, ...args) => new Promise(resolve => {
+  setTimeout(resolve, timeout, ...args);
+});
 
-document.body.appendChild(component());
+const c = chain('chain')
+  .then(x => ['Hello', x])
+  .then(async x => await sleep(500, x.join(' ')))
+  .then(x => (
+    chain(document.getElementById('result'))
+      .with(el => el.innerHTML = x)
+  ))
+  .with(x => console.log(1, x))
+  .eject();
+
+console.log(2, c);

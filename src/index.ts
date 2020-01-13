@@ -2,80 +2,75 @@ import RejectionError from './RejectionError';
 
 type PromiseCallback<T> = ((value: any) => PromiseLike<T> | T) | undefined | null;
 
+const isThenable = (x: any) => (x.then instanceof Function);
+
 export class Chain implements Promise<any> {
-  constructor(private current: any = null, private reason: any = null) {
+  constructor(private value: any = null, private rejected: boolean = false) {
   }
 
-  public finally(onfinally?: (() => void) | undefined | null): this {
-    if (onfinally instanceof Function) {
-      onfinally();
-    }
-    return this;
+  get isFulfilled(): boolean {
+    return !this.isRejected;
   }
 
-  public then<TResult = any, TReason = never>(
-    onfulfilled?: PromiseCallback<TResult>,
-    onrejected?: PromiseCallback<TReason>,
-  ): this {
-    if (this.rejected && !(onrejected instanceof Function)) {
+  get isRejected(): boolean {
+    return this.rejected;
+  }
+
+  public then<TResult = any, TReason = never>(onfulfilled?: PromiseCallback<TResult>, onrejected?: PromiseCallback<TReason>): this {
+    if (this.isRejected) {
+      if (onrejected) {
+        this.rejected = false;
+        this.value = onrejected(this.value);
+      }
       return this;
     }
 
-    const [fn, arg] = this.rejected ? [onrejected, this.reason] : [onfulfilled, this.current];
+    if (!onfulfilled) {
+      return this;
+    }
+
+    let fn: ((v: any) => TResult | PromiseLike<TResult | TReason>) = onfulfilled;
+    if (isThenable(this.value)) {
+      fn = (p: Promise<any>) => p.then(onfulfilled, onrejected);
+    }
 
     try {
-      if (fn instanceof Function) {
-        this.current = fn(arg);
-        if (this.current instanceof Chain) {
-          this.current = this.current.eject()
-        }
-      }
+      this.value = fn(this.value);
     } catch (e) {
-      this.reason = e;
-      this.current = null;
+      this.value = e;
+      this.rejected = true;
     }
 
     return this;
-  }
-
-  public with(onfulfilled?: (value: any) => void | undefined | null, onrejected?: (value: any) => void | undefined | null): this {
-    if (this.rejected && onrejected instanceof Function) {
-      onrejected(this.reason);
-      return this;
-    }
-
-    try {
-      if (onfulfilled instanceof Function) {
-        onfulfilled(this.current);
-      }
-    }
-    finally {
-      // Do nothing.
-    }
-
-    return this;
-  }
-
-  public catch<TReason = never>(onrejected?: PromiseCallback<TReason>): this {
-    if (this.fulfilled) {
-      return this;
-    }
-
-    this.current = this.reason;
-    this.reason = null;
-    return this.then(onrejected)
   }
 
   get [Symbol.toStringTag]() {
     return 'Chain';
   }
 
-  get fulfilled(): boolean {
-    return !this.rejected;
+  public catch<TReason = never>(onrejected?: PromiseCallback<TReason>): this {
+    if (this.isFulfilled) {
+      return this;
+    }
+
+    return this.then(null, onrejected);
   }
 
-  get rejected(): boolean {
-    return this.reason !== null;
+  public finally(onfinally?: (() => void) | undefined | null): this {
+    if (onfinally) {
+      onfinally();
+    }
+    return this;
+  }
+
+  public with(onfulfilled?: (value: any) => void | undefined | null, onrejected?: (value: any) => void | undefined | null): this {
+    return this.then(onfulfilled && (value => {
+      onfulfilled(value);
+      return value;
+    }), onrejected && (value => {
+      onrejected(value);
+      return value;
+    }));
   }
 
   /**
@@ -85,12 +80,16 @@ export class Chain implements Promise<any> {
    * @throws Error an error containing the rejection reason, if it is rejected.
    */
   public eject(): any {
-    if (this.rejected) {
-      throw this.reason instanceof Error ? this.reason : new RejectionError(this.reason.toString());
+    if (this.isRejected) {
+      throw this.value instanceof Error ? this.value : new RejectionError(this.value.toString());
     }
 
-    return this.current;
+    return this.value;
   }
 }
 
-export default (current: any = null, err: any = null) => new Chain(current, err);
+const chain = (current: any = null, rejected: boolean = false) => new Chain(current, rejected);
+export const resolve = (value: any) => chain(value);
+export const reject = (reason: any) => chain(reason, true);
+
+export default chain;
